@@ -1,0 +1,36 @@
+:authn-paper: https://arxiv.org/pdf/1904.00389.pdf
+:hivemq-enhanced-auth-doc: https://www.hivemq.com/docs/hivemq/4.3/extensions/authentication.html#enhanced-authenticator
+:hivemq-smoker-doc: https://microfast.gitlab.io/smoker/smoking-hivemq 
+:hivemq-smoker-docker-registry: https://gitlab.com/microfast/smoker/smoking-hivemq/container_registry
+
+== HiveMQ SMOKER Extension
+
+This is a implementation of a HiveMQ extension to make the Broker a SMOKER (Secure MQTT Broker) using the MQTT 5 {hivemq-enhanced-auth-doc}[enhanced authentication] and client-managed authorization. The implementation is based on the BSc Thesis "Client-managed anonymous authentication and authorization for MQTT" or "SMOKER" written by Lukas Läderach and Cédric von Allmen at the Bern University of Applied Sciences. The thesis was finished in January 2020. The resulting papers, which also serve as a basis for the implementation can be found here:
+
+* Authentication: {authn-paper}[Authentication Paper] 
+* Authorization: not published yet
+
+=== Run
+
+==== Using local HiveMQ installation
+. Clone this repository into a Java 13 maven project.
+. Run `mvn package` goal from Maven to build the extension
+. Move the file: "target/hivemq-smoker-{version}-distribution.zip" to the directory: "HIVEMQ_HOME/extensions"
+. Unzip the file.
+. Make sure that the user, which is running the broker process, has R/W access to the path configured in `store.file.path` config
+. Start HiveMQ
+. Connect to broker with TCP (port `1883`) or websocket (port `8000` and context `/mqtt`)
+
+==== Using docker
+. Build docker container using `docker build -t smoker .`
+. Run the container using `docker run -d -p 8000:8000 -p 1883:1883 smoker`
+. Connect to broker with TCP (port `1883`) or websocket (port `8000` and context `/mqtt`)
+
+=== Development & Debug
+To run and debug the extension locally you need to have a plain HiveMQ installation on your system.
+
+. Make sure setting the correct path of your local HiveMQ installation to the `hiveMQDir` property in the `pom.xml`
+. Make sure that the broker instance has R/W access to the path configured in `store.file.path` property in the `smive.properties`
+. Run `mvn clean install -P RunWithHiveMQ`
+. If you want to debug, you can attach the debugger to the process started by maven
+

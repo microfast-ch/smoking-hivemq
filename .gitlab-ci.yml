@@ -1,0 +1,62 @@
+image: maven:3.6.3-jdk-11
+
+stages:
+  - build
+  - test
+  - doc
+  - dockerize
+  - deploy
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+
+cache:
+  key: "$CI_JOB_NAME"
+  paths:
+    - .m2/repository
+
+build:
+  stage: build
+  script:
+    - mvn clean package -DskipTests
+  artifacts:
+    paths:
+      - ./target/hivemq-smoker-*-distribution.zip
+
+test:
+  stage: test
+  dependencies:
+    - build
+  script:
+    - mvn clean test
+
+pages:
+  stage: doc
+  dependencies:
+    - build
+  only:
+    - master
+  script:
+    - mvn clean site
+    - cp -r ./target/site public
+  artifacts:
+    paths:
+      - public
+
+dockerize:
+  stage: dockerize
+  image: docker:latest
+  services:
+    - docker:dind
+  only:
+    - tags
+  dependencies:
+    - test
+  before_script:
+    - docker login ${CI_REGISTRY} -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD}
+  script:
+    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}:latest -t ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_TAG} .
+    - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}:latest
+    - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_TAG}
+  after_script:
+    - docker logout ${CI_REGISTRY}
