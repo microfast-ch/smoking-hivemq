@@ -21,7 +21,7 @@
 
     <groupId>ch.microfast.hivemq.smoker</groupId>
     <artifactId>hivemq-smoker</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 
     <description>SMOKER authentication and authorization</description>
 
@@ -48,14 +48,14 @@
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>4.2.3</version>
+            <version>5.0.1</version>
         </dependency>
 
         <!-- HiveMQ Extension SDK -->
         <dependency>
             <groupId>com.hivemq</groupId>
             <artifactId>hivemq-extension-sdk</artifactId>
-            <version>4.3.0</version>
+            <version>4.6.4</version>
         </dependency>
 
         <!-- EdDSA -->
@@ -69,14 +69,14 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.13</version>
+            <version>1.15</version>
         </dependency>
 
         <!-- Simple Key-Value store on Disk -->
         <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>chronicle-map</artifactId>
-            <version>3.19.40</version>
+            <version>3.22ea2</version>
         </dependency>
 
         <!-- Validation -->
@@ -111,7 +111,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.10</version>
+            <version>3.12.0</version>
         </dependency>
 
         <!-- Unit Testing -->
