@@ -18,7 +18,7 @@ public class MemoryClaimStore implements IClaimStore {
 
     private static final Logger log = LoggerFactory.getLogger(MemoryClaimStore.class);
 
-    private final List<Claim> store = Collections.synchronizedList(new ArrayList());
+    private final List<Claim> store = Collections.synchronizedList(new ArrayList<>());
 
     private final IClaimValidator claimValidator;
 
@@ -42,7 +42,7 @@ public class MemoryClaimStore implements IClaimStore {
                 .orElse(null);
 
         if (existingClaim != null) {
-            log.debug("Existing claim found which will be overridden. existingClaim:=" + existingClaim.toString());
+            log.debug("Existing claim found which will be overridden. existingClaim:=" + existingClaim);
             store.remove(existingClaim);
         }
 
@@ -68,6 +68,6 @@ public class MemoryClaimStore implements IClaimStore {
 
     @Override
     public Collection<Claim> getAll() {
-        return store.stream().collect(Collectors.toList());
+        return Collections.unmodifiableList(store);
     }
 }
