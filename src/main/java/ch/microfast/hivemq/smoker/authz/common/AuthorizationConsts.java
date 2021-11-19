@@ -20,4 +20,9 @@ public final class AuthorizationConsts {
      * Topic segment name that builds the first node of the restricted area topic tree
      */
     public static String RESTRICTED_AREA_PREFIX = "restricted";
+
+    /**
+     * Topic name where clients can submit claims to
+     */
+    public static String GET_CLAIMS_TOPIC_PREFIX = "access/claims";
 }

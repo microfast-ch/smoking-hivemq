@@ -1,7 +1,6 @@
 package ch.microfast.hivemq.smoker.authz;
 
 import ch.microfast.hivemq.smoker.authz.common.AuthorizationConsts;
-import ch.microfast.hivemq.smoker.authz.services.IAuthzService;
 import com.google.inject.Inject;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.auth.parameter.TopicPermission;
@@ -18,15 +17,18 @@ import com.hivemq.extension.sdk.api.services.intializer.ClientInitializer;
 public class SmokerClientInitializer implements ClientInitializer {
 
     private final SmokerPublishInboundInterceptor publishInboundInterceptor;
+    private SmokerSubscribeInboundInterceptor subscribeInboundInterceptor;
 
     @Inject
-    public SmokerClientInitializer(SmokerPublishInboundInterceptor publishInboundInterceptor) {
+    public SmokerClientInitializer(SmokerPublishInboundInterceptor publishInboundInterceptor, SmokerSubscribeInboundInterceptor subscribeInboundInterceptor) {
         this.publishInboundInterceptor = publishInboundInterceptor;
+        this.subscribeInboundInterceptor = subscribeInboundInterceptor;
     }
 
     @Override
     public void initialize(@NotNull InitializerInput initializerInput, @NotNull ClientContext clientContext) {
         clientContext.addPublishInboundInterceptor(publishInboundInterceptor);
+        clientContext.addSubscribeInboundInterceptor(subscribeInboundInterceptor);
 
         // Set the permissions according to the claims by clients
         // NOTE: The Priority of the permissions is set by the chronological order of the permissions.
