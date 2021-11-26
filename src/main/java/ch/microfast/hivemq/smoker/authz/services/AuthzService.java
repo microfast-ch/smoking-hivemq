@@ -51,8 +51,9 @@ public class AuthzService implements IAuthzService {
         result.addOwned(ownedClaims);
 
         // Involved Claims
-        Predicate<Claim> filterInvolved = c-> c.getRestriction().getPermissions().stream().anyMatch(p -> p.getClientId().equals(clientId))
-                || c.getRestriction().getPermissions().stream().anyMatch(p -> p.getClientId().equals(AuthorizationConsts.ANY_CLIENT_IDENTIFIER));
+        Predicate<Claim> filterInvolved = c -> !c.getRestriction().getOwner().equals(clientId)
+                && (c.getRestriction().getPermissions().stream().anyMatch(p -> p.getClientId().equals(clientId))
+                || c.getRestriction().getPermissions().stream().anyMatch(p -> p.getClientId().equals(AuthorizationConsts.ANY_CLIENT_IDENTIFIER)));
         Collection<Claim> involvedClaims = claimStore.find(filterInvolved);
         result.addInvolved(involvedClaims);
 

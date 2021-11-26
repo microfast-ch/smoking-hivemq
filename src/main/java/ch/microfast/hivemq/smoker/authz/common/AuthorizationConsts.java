@@ -25,4 +25,10 @@ public final class AuthorizationConsts {
      * System topic for clients to request their topic (owned/involved)
      */
     public static String REQUEST_CLAIMS_TOPIC_PATTERN = "access/claims/%s/request";
+
+    /**
+     * The topic (within every restricted area) which is used to reply to claim requests
+     */
+    public static String REQUEST_CLAIMS_RESTRICTED_RESPONSE_TOPIC = "claims";
+
 }

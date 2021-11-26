@@ -2,13 +2,13 @@ package ch.microfast.hivemq.smoker.authz;
 
 import ch.microfast.hivemq.smoker.authz.common.AuthorizationConsts;
 import ch.microfast.hivemq.smoker.authz.common.SmokerClientHelper;
+import ch.microfast.hivemq.smoker.authz.common.TopicHelper;
 import ch.microfast.hivemq.smoker.authz.domain.Claim;
 import ch.microfast.hivemq.smoker.authz.domain.ClientClaimsDto;
 import ch.microfast.hivemq.smoker.authz.serialization.SmokerJsonSerializer;
 import ch.microfast.hivemq.smoker.authz.services.IAuthzService;
 import ch.microfast.hivemq.smoker.authz.validation.IClaimValidator;
 import ch.microfast.hivemq.smoker.authz.validation.InvalidClaimException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.auth.parameter.TopicPermission;
@@ -81,11 +81,15 @@ public class SmokerPublishInboundInterceptor implements PublishInboundIntercepto
                     return;
                 }
 
-                // TODO: validate response topic format
-
+                // validate response topic format
+                String responseTopic = responseTopicOptional.get();
+                if (!TopicHelper.IsTopicOwnedByOwner(responseTopic, clientId) || !TopicHelper.TopicSegmentIsEqualTo(requestTopic, 2, AuthorizationConsts.REQUEST_CLAIMS_RESTRICTED_RESPONSE_TOPIC)) {
+                    log.debug("Invalid response topic. responseTopic:=" + responseTopic);
+                    publishInboundOutput.preventPublishDelivery(AckReasonCode.TOPIC_NAME_INVALID, "Invalid response topic. The claimed 'claims' is excepted. (restricted/{clientId}/claims)");
+                    return;
+                }
 
                 // publish claim directly
-                String responseTopic = responseTopicOptional.get();
                 Set<TopicSubscription> topicSubscriptions = Services.subscriptionStore().getSubscriptions(clientId).get();
                 if (topicSubscriptions.stream().anyMatch(m -> responseTopic.equals(m.getTopicFilter()))) {
                     ClientClaimsDto claimsForClient = authzService.getClaimsForClient(clientId);

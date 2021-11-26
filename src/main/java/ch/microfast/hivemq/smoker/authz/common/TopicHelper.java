@@ -29,7 +29,7 @@ public class TopicHelper {
         return TopicSegmentIsEqualTo(topic, 1, owner);
     }
 
-    private static boolean TopicSegmentIsEqualTo(String topic, int segmentIdx, String expectedValue) {
+    public static boolean TopicSegmentIsEqualTo(String topic, int segmentIdx, String expectedValue) {
         if (topic == null) {
             throw new IllegalArgumentException("topic must not be null or empty");
         }
