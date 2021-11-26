@@ -22,7 +22,7 @@ public final class AuthorizationConsts {
     public static String RESTRICTED_AREA_PREFIX = "restricted";
 
     /**
-     * Topic name where clients can submit claims to
+     * System topic for clients to request their topic (owned/involved)
      */
-    public static String GET_CLAIMS_TOPIC_PREFIX = "access/claims";
+    public static String REQUEST_CLAIMS_TOPIC_PATTERN = "access/claims/%s/request";
 }

@@ -2,6 +2,7 @@ package ch.microfast.hivemq.smoker.authz.validation;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 /**
  * Exception
@@ -11,6 +12,7 @@ public class InvalidClaimException extends Exception {
     private final Collection<String> errorMessages;
 
     public InvalidClaimException(Collection<String> errorMessages) {
+        super(String.join(",", errorMessages));
         this.errorMessages = Collections.unmodifiableCollection(errorMessages);
     }
 

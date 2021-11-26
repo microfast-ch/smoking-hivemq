@@ -5,7 +5,6 @@ import ch.microfast.hivemq.smoker.authn.SmokerConnectInboundInterceptor;
 import ch.microfast.hivemq.smoker.authn.providers.SmokerConnectInboundInterceptorProvider;
 import ch.microfast.hivemq.smoker.authn.providers.SmokerEnhancedAuthenticationProvider;
 import ch.microfast.hivemq.smoker.authn.SmokerEnhancedAuthenticator;
-import ch.microfast.hivemq.smoker.authz.SmokerSubscribeInboundInterceptor;
 import ch.microfast.hivemq.smoker.authz.persistance.ChronicleMapDiskClaimStore;
 import ch.microfast.hivemq.smoker.authz.providers.SmokerAuthorizerProvider;
 import ch.microfast.hivemq.smoker.authz.SmokerClientInitializer;
@@ -28,7 +27,6 @@ import com.hivemq.extension.sdk.api.auth.EnhancedAuthenticator;
 import com.hivemq.extension.sdk.api.interceptor.connect.ConnectInboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.connect.ConnectInboundInterceptorProvider;
 import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundInterceptor;
-import com.hivemq.extension.sdk.api.interceptor.subscribe.SubscribeInboundInterceptor;
 import com.hivemq.extension.sdk.api.services.auth.provider.AuthorizerProvider;
 import com.hivemq.extension.sdk.api.services.auth.provider.EnhancedAuthenticatorProvider;
 import com.hivemq.extension.sdk.api.services.intializer.ClientInitializer;
@@ -58,7 +56,6 @@ public class SmokerModule extends AbstractModule {
         bind(EnhancedAuthenticator.class).to(SmokerEnhancedAuthenticator.class);
         bind(EnhancedAuthenticatorProvider.class).to(SmokerEnhancedAuthenticationProvider.class);
         bind(PublishInboundInterceptor.class).to(SmokerPublishInboundInterceptor.class);
-        bind(SubscribeInboundInterceptor.class).to(SmokerSubscribeInboundInterceptor.class);
         bind(IAuthzService.class).to(AuthzService.class);
 
         bindConfig();

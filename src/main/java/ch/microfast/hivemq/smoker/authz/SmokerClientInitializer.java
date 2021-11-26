@@ -17,18 +17,15 @@ import com.hivemq.extension.sdk.api.services.intializer.ClientInitializer;
 public class SmokerClientInitializer implements ClientInitializer {
 
     private final SmokerPublishInboundInterceptor publishInboundInterceptor;
-    private SmokerSubscribeInboundInterceptor subscribeInboundInterceptor;
 
     @Inject
-    public SmokerClientInitializer(SmokerPublishInboundInterceptor publishInboundInterceptor, SmokerSubscribeInboundInterceptor subscribeInboundInterceptor) {
+    public SmokerClientInitializer(SmokerPublishInboundInterceptor publishInboundInterceptor) {
         this.publishInboundInterceptor = publishInboundInterceptor;
-        this.subscribeInboundInterceptor = subscribeInboundInterceptor;
     }
 
     @Override
     public void initialize(@NotNull InitializerInput initializerInput, @NotNull ClientContext clientContext) {
         clientContext.addPublishInboundInterceptor(publishInboundInterceptor);
-        clientContext.addSubscribeInboundInterceptor(subscribeInboundInterceptor);
 
         // Set the permissions according to the claims by clients
         // NOTE: The Priority of the permissions is set by the chronological order of the permissions.

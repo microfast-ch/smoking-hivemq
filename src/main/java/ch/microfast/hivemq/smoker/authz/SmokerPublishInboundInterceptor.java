@@ -3,24 +3,34 @@ package ch.microfast.hivemq.smoker.authz;
 import ch.microfast.hivemq.smoker.authz.common.AuthorizationConsts;
 import ch.microfast.hivemq.smoker.authz.common.SmokerClientHelper;
 import ch.microfast.hivemq.smoker.authz.domain.Claim;
+import ch.microfast.hivemq.smoker.authz.domain.ClientClaimsDto;
 import ch.microfast.hivemq.smoker.authz.serialization.SmokerJsonSerializer;
 import ch.microfast.hivemq.smoker.authz.services.IAuthzService;
 import ch.microfast.hivemq.smoker.authz.validation.IClaimValidator;
 import ch.microfast.hivemq.smoker.authz.validation.InvalidClaimException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.auth.parameter.TopicPermission;
 import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundOutput;
+import com.hivemq.extension.sdk.api.packets.general.Qos;
 import com.hivemq.extension.sdk.api.packets.publish.AckReasonCode;
+import com.hivemq.extension.sdk.api.services.Services;
+import com.hivemq.extension.sdk.api.services.builder.Builders;
+import com.hivemq.extension.sdk.api.services.publish.Publish;
+import com.hivemq.extension.sdk.api.services.subscription.TopicSubscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 /**
  * The inbound publish interceptor listens for claims/unclaims of authenticated clients and stores them into the persistent storage.
@@ -61,6 +71,35 @@ public class SmokerPublishInboundInterceptor implements PublishInboundIntercepto
                 }
             }
 
+            // handle client claims requests
+            String requestTopic = String.format(AuthorizationConsts.REQUEST_CLAIMS_TOPIC_PATTERN, clientId);
+            if (requestTopic.equals(publishTopic)) {
+                Optional<String> responseTopicOptional = publishInboundInput.getPublishPacket().getResponseTopic();
+                if (responseTopicOptional.isEmpty()) {
+                    log.warn("No response topic provided to publish the clients claims to");
+                    publishInboundOutput.preventPublishDelivery(AckReasonCode.IMPLEMENTATION_SPECIFIC_ERROR, "No response topic provided");
+                    return;
+                }
+
+                // TODO: validate response topic format
+
+
+                // publish claim directly
+                String responseTopic = responseTopicOptional.get();
+                Set<TopicSubscription> topicSubscriptions = Services.subscriptionStore().getSubscriptions(clientId).get();
+                if (topicSubscriptions.stream().anyMatch(m -> responseTopic.equals(m.getTopicFilter()))) {
+                    ClientClaimsDto claimsForClient = authzService.getClaimsForClient(clientId);
+                    String clientClaimsJson = this.smokerJsonSerializer.writeValueAsString(claimsForClient);
+                    Publish message = Builders.publish()
+                            .topic(responseTopic)
+                            .qos(Qos.AT_LEAST_ONCE)
+                            .payload(ByteBuffer.wrap(clientClaimsJson.getBytes(StandardCharsets.UTF_8)))
+                            .build();
+                    Services.publishService().publishToClient(message, clientId);
+                    return;
+                }
+            }
+
             // handle claims
             if (AuthorizationConsts.CLAIM_TOPIC.equals(publishTopic)) {
                 log.debug("Incoming claim from clientId:={}", clientId);
@@ -82,13 +121,12 @@ public class SmokerPublishInboundInterceptor implements PublishInboundIntercepto
                 } catch (IOException ex) {
                     log.debug("Prevent claim because deserialization failed", ex);
                     publishInboundOutput.preventPublishDelivery(AckReasonCode.PAYLOAD_FORMAT_INVALID, "The claim payload is not in the expected format and cannot be deserialized");
-                    return;
                 } catch (InvalidClaimException ex) {
                     log.debug("Prevent claim because validation failed", ex);
-                    publishInboundOutput.preventPublishDelivery(AckReasonCode.PAYLOAD_FORMAT_INVALID, String.format("Claim is not valid. ErrorMessages:={}", ex.getErrorMessages()));
+                    publishInboundOutput.preventPublishDelivery(AckReasonCode.PAYLOAD_FORMAT_INVALID, String.format("Claim is not valid. ErrorMessages:=%s", ex.getErrorMessages()));
                 } catch (Exception ex) {
                     log.error("Prevent claim because of a unexpected exception", ex);
-                    publishInboundOutput.preventPublishDelivery(AckReasonCode.UNSPECIFIED_ERROR, String.format("Unexpected exception while claiming"));
+                    publishInboundOutput.preventPublishDelivery(AckReasonCode.UNSPECIFIED_ERROR, "Unexpected exception while claiming");
                 }
             }
 
@@ -109,7 +147,7 @@ public class SmokerPublishInboundInterceptor implements PublishInboundIntercepto
             }
         } catch(Exception ex) {
             log.error("Unexpected exception", ex);
-            throw ex;
+            publishInboundOutput.preventPublishDelivery(AckReasonCode.UNSPECIFIED_ERROR);
         }
     }
 }

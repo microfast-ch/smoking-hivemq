@@ -40,7 +40,7 @@ public class TestAuthzService extends TestBase {
     }
 
     @Test
-    public void testFindClaims() throws IOException, NoSuchAlgorithmException, SignatureException, InvalidKeyException, InvalidClaimException {
+    public void testFindClaims() throws IOException, SignatureException, InvalidKeyException, InvalidClaimException {
         // Arrange
         KeyPair keyPair = _cryptoProvider.generateKeyPair();
         EdDSAPublicKey publicKey = (EdDSAPublicKey) keyPair.getPublic();
@@ -66,6 +66,6 @@ public class TestAuthzService extends TestBase {
         var claims = _authzService.getClaimsForClient(restriction.getOwner());
 
         // Assert
-        assertEquals(1, claims.size());
+        assertEquals(1, claims.getAllClaims().size());
     }
 }

@@ -3,6 +3,7 @@ package ch.microfast.hivemq.smoker.authz.services;
 import ch.microfast.hivemq.smoker.authz.common.AuthorizationConsts;
 import ch.microfast.hivemq.smoker.authz.common.TopicHelper;
 import ch.microfast.hivemq.smoker.authz.domain.Claim;
+import ch.microfast.hivemq.smoker.authz.domain.ClientClaimsDto;
 import ch.microfast.hivemq.smoker.authz.persistance.IClaimStore;
 import ch.microfast.hivemq.smoker.authz.validation.InvalidClaimException;
 import com.google.inject.Inject;
@@ -42,13 +43,20 @@ public class AuthzService implements IAuthzService {
     }
 
     @Override
-    public Collection<Claim> getClaimsForClient(String clientId) {
-        // find all claims that somehow affect the given clientId
-        Predicate<Claim> filterPredicate = (c) -> c.getRestriction().getOwner().equals(clientId)
-                || c.getRestriction().getPermissions().stream().anyMatch(p -> p.getClientId().equals(clientId))
-                || c.getRestriction().getPermissions().stream().anyMatch(p -> p.getClientId().equals(AuthorizationConsts.ANY_CLIENT_IDENTIFIER));
+    public ClientClaimsDto getClaimsForClient(String clientId) {
+        ClientClaimsDto result = new ClientClaimsDto(clientId);
 
-        return claimStore.find(filterPredicate);
+        // Owned Claims
+        Collection<Claim> ownedClaims = claimStore.find(c -> c.getRestriction().getOwner().equals(clientId));
+        result.addOwned(ownedClaims);
+
+        // Involved Claims
+        Predicate<Claim> filterInvolved = c-> c.getRestriction().getPermissions().stream().anyMatch(p -> p.getClientId().equals(clientId))
+                || c.getRestriction().getPermissions().stream().anyMatch(p -> p.getClientId().equals(AuthorizationConsts.ANY_CLIENT_IDENTIFIER));
+        Collection<Claim> involvedClaims = claimStore.find(filterInvolved);
+        result.addInvolved(involvedClaims);
+
+        return result;
     }
 
     @Override
