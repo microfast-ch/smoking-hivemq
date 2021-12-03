@@ -1,6 +1,7 @@
 package ch.microfast.hivemq.smoker.authz.domain;
 
 import ch.microfast.hivemq.smoker.authz.common.AuthorizationConsts;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +24,18 @@ public class ClientClaimsDto {
         this.clientId = clientId;
         this.ownedClaims = new ArrayList<>();
         this.involvedClaims = new ArrayList<>();
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public List<Claim> getOwnedClaims() {
+        return ownedClaims;
+    }
+
+    public List<Claim> getInvolvedClaims() {
+        return involvedClaims;
     }
 
     /**
@@ -67,6 +80,7 @@ public class ClientClaimsDto {
      * Return the owned and involved Claims in a combined list.
      * @return a read-only claim list
      */
+    @JsonIgnore
     public List<Claim> getAllClaims() {
         List<Claim> allClaims = new ArrayList<>();
         allClaims.addAll(ownedClaims);
