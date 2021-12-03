@@ -35,7 +35,6 @@ public class Restriction implements Serializable {
      * </p>
      */
     @NotNull
-    @NotEmpty
     private Collection<Permission> permissions;
 
 
