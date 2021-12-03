@@ -83,7 +83,7 @@ public class SmokerPublishInboundInterceptor implements PublishInboundIntercepto
 
                 // validate response topic format
                 String responseTopic = responseTopicOptional.get();
-                if (!TopicHelper.IsTopicOwnedByOwner(responseTopic, clientId) || !TopicHelper.TopicSegmentIsEqualTo(requestTopic, 2, AuthorizationConsts.REQUEST_CLAIMS_RESTRICTED_RESPONSE_TOPIC)) {
+                if (!TopicHelper.IsTopicOwnedByOwner(responseTopic, clientId) || !TopicHelper.TopicSegmentIsEqualTo(responseTopic, 2, AuthorizationConsts.REQUEST_CLAIMS_RESTRICTED_RESPONSE_TOPIC)) {
                     log.debug("Invalid response topic. responseTopic:=" + responseTopic);
                     publishInboundOutput.preventPublishDelivery(AckReasonCode.TOPIC_NAME_INVALID, "Invalid response topic. The claimed 'claims' is excepted. (restricted/{clientId}/claims)");
                     return;
