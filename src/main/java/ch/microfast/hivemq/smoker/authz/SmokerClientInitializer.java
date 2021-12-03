@@ -38,6 +38,18 @@ public class SmokerClientInitializer implements ClientInitializer {
                 .type(TopicPermission.PermissionType.DENY)
                 .build();
 
+        var denyClaimRequestTopicActivity = Builders.topicPermission()
+                .activity(TopicPermission.MqttActivity.ALL)
+                .topicFilter(String.format(AuthorizationConsts.REQUEST_CLAIMS_TOPIC_PATTERN, "+"))
+                .type(TopicPermission.PermissionType.DENY)
+                .build();
+
+        var denyClaimRequestTopicWildcardMultilevelActivity = Builders.topicPermission()
+                .activity(TopicPermission.MqttActivity.ALL)
+                .topicFilter(AuthorizationConsts.REQUEST_CLAIMS_TOPIC_PREFIX + "/#")
+                .type(TopicPermission.PermissionType.DENY)
+                .build();
+
         var denyUnclaimTopicSubscriptions = Builders.topicPermission()
                 .activity(TopicPermission.MqttActivity.SUBSCRIBE)
                 .topicFilter(AuthorizationConsts.UNCLAIM_TOPIC)
@@ -51,6 +63,8 @@ public class SmokerClientInitializer implements ClientInitializer {
                 .build();
 
         defaultPermissions.add(denyClaimTopicSubscriptions);
+        defaultPermissions.add(denyClaimRequestTopicActivity);
+        defaultPermissions.add(denyClaimRequestTopicWildcardMultilevelActivity);
         defaultPermissions.add(denyUnclaimTopicSubscriptions);
         defaultPermissions.add(denyRestrictedAreaActivity);
 

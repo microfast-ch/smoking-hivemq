@@ -38,7 +38,7 @@ public class TopicHelper {
         String[] segments = topic.split("/");
 
         if (segments.length - 1 < segmentIdx) {
-            throw new IndexOutOfBoundsException("The given topic:=" + topic + " does not contain enough segments");
+            return false;
         }
 
         return expectedValue.equals(segments[segmentIdx]);

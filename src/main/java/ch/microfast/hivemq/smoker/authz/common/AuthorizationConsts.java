@@ -22,13 +22,26 @@ public final class AuthorizationConsts {
     public static String RESTRICTED_AREA_PREFIX = "restricted";
 
     /**
-     * System topic for clients to request their topic (owned/involved)
+     * Topic prefix used to request claims
      */
-    public static String REQUEST_CLAIMS_TOPIC_PATTERN = "access/claims/%s/request";
+    public static String REQUEST_CLAIMS_TOPIC_PREFIX = "access/claims";
 
     /**
      * The topic (within every restricted area) which is used to reply to claim requests
      */
     public static String REQUEST_CLAIMS_RESTRICTED_RESPONSE_TOPIC = "claims";
+
+    /**
+     * System topic for clients to request their topic (owned/involved).
+     * The placeholder is replaced with the clientId
+     */
+    public static String REQUEST_CLAIMS_TOPIC_PATTERN = REQUEST_CLAIMS_TOPIC_PREFIX + "/%s/request";
+
+    /**
+     * System topic for clients to receive their claims (owned/involved).
+     * The placeholder is replaced with the clientId
+     */
+    public static String REQUEST_CLAIMS_RESPONSE_TOPIC_PATTERN = REQUEST_CLAIMS_TOPIC_PREFIX + "/%s/" + REQUEST_CLAIMS_RESTRICTED_RESPONSE_TOPIC;
+
 
 }

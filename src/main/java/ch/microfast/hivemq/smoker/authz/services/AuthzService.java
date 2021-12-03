@@ -64,6 +64,11 @@ public class AuthzService implements IAuthzService {
     public boolean checkAccess(String clientId, String topic, TopicPermission.MqttActivity activity, boolean isAuthenticated) {
         log.debug("Checking access for clientId:={}, topic:={}, activity:={}, isAuthenticated:={}", clientId, topic, activity, isAuthenticated);
 
+        if (topic.startsWith(AuthorizationConsts.REQUEST_CLAIMS_TOPIC_PREFIX) && !TopicHelper.TopicSegmentIsEqualTo(topic, 2, clientId)) {
+            log.debug("Acting on claim request topics is only allowed by the client itself - access denied");
+            return false;
+        }
+
         // Only allow to publish reserved topics if client is authenticated
         if (activity == TopicPermission.MqttActivity.PUBLISH && TopicHelper.IsReservedTopic(topic) && !isAuthenticated) {
             log.debug("Reserved topics can only be published if the client is authenticated - access denied");
